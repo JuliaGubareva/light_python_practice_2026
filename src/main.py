@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import hashlib  # Добавили импорт дляработы с MD5-хэшем
 
 def get_files_recursive(folder_path):
     """Рекурсивно собирает все файлы в папке и подпапках."""
@@ -30,18 +31,15 @@ def get_files_recursive(folder_path):
     return files_info
 
 def calculate_file_hash(file_path):
-    """Считает простой хэш (контрольная сумма)."""
-    file_hash = 0
+    """Считает MD5-хэш файла."""
+    hasher = hashlib.md5() #!!!
     try:
         with open(file_path, 'rb') as f:
-            while True:
-                chunk = f.read(8192)
-                if not chunk:
-                    break
-                file_hash = sum(chunk) + file_hash
+            while chunk := f.read(8192):
+                hasher.update(chunk)
+        return hasher.hexdigest()  # Возвращаем хэш в виде строки
     except OSError:
-        return "0"
-    return str(file_hash)
+        return "0"  # Если файл недоступен, возвращаем дефолтное значение
 
 def find_duplicates(files_info):
     """Находит дубликаты файлов по хэшу."""
@@ -148,4 +146,4 @@ def main():
         print_comparison_results(results)
 
 if __name__ == "__main__":
-    main() 
+    main()
